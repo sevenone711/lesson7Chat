@@ -83,26 +83,31 @@ public class ClientHandler {
                 return;
             }
 
-    
-            if (message.startsWith(PRIVAT_CMD_PREFIX)) {
-                String[] parts = message.split("\\s+", 3);
-                String login = parts[1];
-                String privatmassage = parts[2];
-                AuthService authService = myServer.getAuthService();
-                String nameByLogin  = authService.getNameUserByLogin(login);
-                if(nameByLogin == null){
-                    out.writeUTF(" Такого пользователя не существует");
-                }
+    //-------------->Проверка на отправку приватного сообщения<---------------
+            chekingPrivateMasseg(message);
 
-                else if (!myServer.isUsernameBusy(nameByLogin)) {
-                    out.writeUTF( "Пользоватьель не в сети");
-                }
+            myServer.broadcastMessage(clientUsername + ": " + message, this);
 
-                myServer.privatbroadcastMessage(clientUsername + ": " + privatmassage, this, nameByLogin);
-            }   else {
+        }
+    }
 
-                myServer.broadcastMessage(clientUsername + ": " + message, this);
+    private void chekingPrivateMasseg (String message) throws IOException {
+        if (message.startsWith(PRIVAT_CMD_PREFIX)) {
+            String[] parts = message.split("\\s+", 3);
+            String login = parts[1];
+            String privatmassage = parts[2];
+            AuthService authService = myServer.getAuthService();
+            String nameByLogin  = authService.getNameUserByLogin(login); // Получаем имя по логину
+            // Проверка на существование пользователя
+            if(nameByLogin == null){
+                out.writeUTF(" Такого пользователя не существует");
             }
+
+            else if (!myServer.isUsernameBusy(nameByLogin)) {
+                out.writeUTF( "Пользоватьель не в сети");
+            }
+
+            myServer.privatbroadcastMessage(clientUsername + ": " + privatmassage, this, nameByLogin);
         }
     }
 
