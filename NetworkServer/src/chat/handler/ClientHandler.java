@@ -5,11 +5,9 @@ import chat.MyServer;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.Socket;
 
 import chat.auth.*;
-import chat.*;
 
 public class ClientHandler {
 
@@ -84,14 +82,14 @@ public class ClientHandler {
             }
 
     //-------------->Проверка на отправку приватного сообщения<---------------
-            chekingPrivateMasseg(message);
+            if(!chekingPrivateMasseg(message)) {
 
-            myServer.broadcastMessage(clientUsername + ": " + message, this);
-
+                myServer.broadcastMessage(clientUsername + ": " + message, this);
+            }
         }
     }
 
-    private void chekingPrivateMasseg (String message) throws IOException {
+    private  boolean chekingPrivateMasseg (String message) throws IOException {
         if (message.startsWith(PRIVAT_CMD_PREFIX)) {
             String[] parts = message.split("\\s+", 3);
             String login = parts[1];
@@ -108,7 +106,9 @@ public class ClientHandler {
             }
 
             myServer.privatbroadcastMessage(clientUsername + ": " + privatmassage, this, nameByLogin);
+            return true;
         }
+        return false;
     }
 
     public String getClientUsername() {
